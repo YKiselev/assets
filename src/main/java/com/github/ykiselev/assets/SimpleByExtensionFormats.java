@@ -17,8 +17,9 @@
 package com.github.ykiselev.assets;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Created by Y.Kiselev on 15.05.2016.
@@ -33,7 +34,7 @@ public final class SimpleByExtensionFormats implements Function<String, Readable
 
     @Override
     public ReadableResource apply(String format) {
-        return Objects.requireNonNull(this.map.get(format), "Unknown format: " + format);
+        return requireNonNull(map.get(format), "Unknown format: " + format);
     }
 
 }

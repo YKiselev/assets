@@ -17,8 +17,9 @@
 package com.github.ykiselev.assets;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Created by Y.Kiselev on 15.05.2016.
@@ -33,7 +34,7 @@ public final class SimpleByClassFormats implements Function<Class, ReadableResou
 
     @Override
     public ReadableResource apply(Class clazz) {
-        return Objects.requireNonNull(this.map.get(clazz), "Unknown class: " + clazz);
+        return requireNonNull(map.get(clazz), "Unknown class: " + clazz);
     }
 
 }

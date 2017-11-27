@@ -16,6 +16,8 @@
 
 package com.github.ykiselev.assets;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 
 /**
@@ -23,5 +25,13 @@ import java.net.URI;
  */
 public interface ReadableResource<T> {
 
-    T read(URI resource, Assets assets) throws ResourceException;
+    default T read(URI resource, Assets assets) throws ResourceException {
+        try (InputStream is = assets.open(resource)) {
+            return read(is, assets);
+        } catch (IOException e) {
+            throw new ResourceException(e);
+        }
+    }
+
+    T read(InputStream inputStream, Assets assets) throws ResourceException;
 }

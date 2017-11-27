@@ -37,7 +37,7 @@ public final class SimpleAssets implements Assets {
         this.byExtension = byExtension;
     }
 
-    private String format(URI resource) {
+    private String extension(URI resource) {
         final String path = resource.getPath();
         final int i = path.lastIndexOf('.');
         if (i == -1) {
@@ -47,24 +47,19 @@ public final class SimpleAssets implements Assets {
     }
 
     @Override
-    public void close() throws Exception {
-        // nothing to do
-    }
-
-    @Override
     public InputStream open(URI resource) throws ResourceException {
         return this.resources.open(resource);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T load(URI resource, Class<T> clazz) throws ResourceException {
-        final ReadableResource readableResource;
+    public <T> ReadableResource<T> resolve(URI resource, Class<T> clazz) throws ResourceException {
+        final ReadableResource result;
         if (clazz == null) {
-            readableResource = byExtension.apply(format(resource));
+            result = byExtension.apply(extension(resource));
         } else {
-            readableResource = byClass.apply(clazz);
+            result = byClass.apply(clazz);
         }
-        return (T) readableResource.read(resource, this);
+        return (ReadableResource<T>) result;
     }
 }

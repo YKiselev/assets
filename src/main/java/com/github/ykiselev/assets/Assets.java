@@ -23,7 +23,9 @@ import java.net.URI;
  * <p>
  * Created by Y.Kiselev on 15.05.2016.
  */
-public interface Assets extends Resources, AutoCloseable {
+public interface Assets extends Resources {
+
+    <T> ReadableResource<T> resolve(URI resource, Class<T> clazz) throws ResourceException;
 
     /**
      * Loads asset using (presumably by using one of registered {@link ReadableResource}'s
@@ -34,7 +36,9 @@ public interface Assets extends Resources, AutoCloseable {
      * @return the requested resource
      * @throws ResourceException if something goes wrong during the resource loading process.
      */
-    <T> T load(URI resource, Class<T> clazz) throws ResourceException;
+    default <T> T load(URI resource, Class<T> clazz) throws ResourceException {
+        return resolve(resource, clazz).read(resource, this);
+    }
 
     /**
      * Convenient method taking only one string argument as a resource name.

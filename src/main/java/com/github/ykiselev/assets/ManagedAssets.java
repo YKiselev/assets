@@ -19,20 +19,22 @@ package com.github.ykiselev.assets;
 import java.io.Closeable;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Created by Y.Kiselev on 16.05.2016.
  */
-public final class ManagedAssets implements Assets {
+public final class ManagedAssets implements Assets, AutoCloseable {
 
     private final Assets assets;
 
-    private final Map<URI, Object> cache = new HashMap<>();
+    private final Map<URI, Object> cache;
 
-    public ManagedAssets(Assets assets) {
-        this.assets = assets;
+    public ManagedAssets(Assets assets, Map<URI, Object> cache) {
+        this.assets = requireNonNull(assets);
+        this.cache = requireNonNull(cache);
     }
 
     @Override
@@ -53,7 +55,12 @@ public final class ManagedAssets implements Assets {
     }
 
     @Override
+    public <T> ReadableResource<T> resolve(URI resource, Class<T> clazz) throws ResourceException {
+        return assets.resolve(resource, clazz);
+    }
+
+    @Override
     public InputStream open(URI resource) throws ResourceException {
-        return this.assets.open(resource);
+        return assets.open(resource);
     }
 }
