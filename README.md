@@ -69,12 +69,12 @@ public interface ReadableResource<T> {
 ```
 
 ## Implementations
-### com.github.ykiselev.assets.SimpleAssets 
+### SimpleAssets class 
 This is a base implementation of Assets interface. Instance of this class will require implementation of com.github.ykiselev.assets.Resources (which will be 
 used to resolve URI to InputStream) and two functions: Function<Class, ReadableResource> - should resolve ReadableResource by specified asset class 
 and Function<String, ReadableResource> - should resolve ReadableResource by asset's URI path extension.
 
-### com.github.ykiselev.assets.ManagedAssets 
+### ManagedAssets class 
 This class is intended to be used as decoration for other implementations of Assets. To create instance of this class user will need to provide implementation 
 of Assets (for example - com.github.ykiselev.assets.SimpleAssets) and an instance of class implementing java.util.Map which will be used as internal cache, not 
 only to speed-up consecutive calls with the same asset URI but also to release any system resources held by asset (asset class should implement Closeable or 
