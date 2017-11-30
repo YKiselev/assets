@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/YKiselev/lwjgl3-playground.svg?branch=master)](https://travis-ci.org/YKiselev/assets)
+[![Build Status](https://travis-ci.org/YKiselev/assets.svg?branch=master)](https://travis-ci.org/YKiselev/assets)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.ykiselev/assets.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.github.ykiselev%22%20AND%20a%3A%22assets%22)
 
