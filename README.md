@@ -5,7 +5,7 @@
 # Assets
 ## Synopsis
 
-Simple framework for asset management.
+Simple framework for asset management (asset here is any resource, for example image or sound).
 
 # How to use
 
