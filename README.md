@@ -11,17 +11,18 @@ Simple framework for asset management.
 
 Asset framework consists of three interfaces:
 
-1) Low-level api to resolve resource URI to java.io.InputStream
+## Resources interface
+Low-level api to resolve resource URI to java.io.InputStream
 ```java
 interface Resources {
 
     InputStream open(URI resource) throws ResourceException;
 }
 ```
-
-2) Top-level interface which extends com.github.ykiselev.assets.Resources and adds methods to access registered com.github.ykiselev.assets.ReadableResource's or assets itself
+## Assets interface
+Top-level interface which extends com.github.ykiselev.assets.Resources and adds methods to access registered com.github.ykiselev.assets.ReadableResource's or assets itself
 ```java
-public interface Assets extends Resources {
+interface Assets extends Resources {
 
     /**
      * Resolves readable resource from supplied URI and class.
@@ -50,8 +51,8 @@ public interface Assets extends Resources {
     }
 }
 ```
-
-3) Api to be implemented by user for each supported asset class
+## ReadableResource<T> interface
+Api to be implemented by user for each supported asset class
 ```java
 public interface ReadableResource<T> {
 
@@ -66,6 +67,18 @@ public interface ReadableResource<T> {
     T read(InputStream inputStream, Assets assets) throws ResourceException;
 }
 ```
+
+## Implementations
+### com.github.ykiselev.assets.SimpleAssets 
+This is a base implementation of Assets interface. Instance of this class will require implementation of com.github.ykiselev.assets.Resources (which will be 
+used to resolve URI to InputStream) and two functions: Function<Class, ReadableResource> - should resolve ReadableResource by specified asset class 
+and Function<String, ReadableResource> - should resolve ReadableResource by asset's URI path extension.
+
+### com.github.ykiselev.assets.ManagedAssets 
+This class is intended to be used as decoration for other implementations of Assets. To create instance of this class user will need to provide implementation 
+of Assets (for example - com.github.ykiselev.assets.SimpleAssets) and an instance of class implementing java.util.Map which will be used as internal cache, not 
+only to speed-up consecutive calls with the same asset URI but also to release any system resources held by asset (asset class should implement Closeable or 
+AutoCloseable interface). This cleanup is performed when method com.github.ykiselev.assets.ManagedAssets.close is called.  
 
 # License
 
