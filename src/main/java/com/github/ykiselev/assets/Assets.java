@@ -37,7 +37,7 @@ public interface Assets extends Resources {
     <T> ReadableResource<T> resolve(URI resource, Class<T> clazz) throws ResourceException;
 
     /**
-     * Loads asset using (presumably by using one of registered {@link ReadableResource}'s
+     * Loads asset using one of registered {@link ReadableResource}'s
      *
      * @param resource the resource to load
      * @param clazz    the class of resource or {@code null} if not known
