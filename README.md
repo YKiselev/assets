@@ -56,15 +56,32 @@ Api to be implemented by user for each supported asset class
 ```java
 public interface ReadableResource<T> {
 
+    /**
+     * Convenient method to read resource by {@link URI}
+     *
+     * @param resource the resource {@link URI}.
+     * @param assets   the instance of asset manager. At first glance {@link Resources} would suffice but {@link Assets} may be required for cases when we read compound asset consisting of different assets.
+     * @return de-serialized resource.
+     * @throws ResourceException if something goes wrong during de-serialization of resource.
+     */
     default T read(URI resource, Assets assets) throws ResourceException {
         try (InputStream is = assets.open(resource)) {
-            return read(is, assets);
+            return read(is, resource, assets);
         } catch (IOException e) {
             throw new ResourceException(e);
         }
     }
 
-    T read(InputStream inputStream, Assets assets) throws ResourceException;
+    /**
+     * Reads resource from input stream
+     *
+     * @param inputStream the binary stream to read resource from.
+     * @param resource    the resource {@link URI}.
+     * @param assets      the instance of asset manager. At first glance {@link Resources} would suffice but {@link Assets} may be required for cases when we read compound asset consisting of different assets.
+     * @return de-serialized resource.
+     * @throws ResourceException if something goes wrong during de-serialization of resource.
+     */
+    T read(InputStream inputStream, URI resource, Assets assets) throws ResourceException;
 }
 ```
 
@@ -79,6 +96,51 @@ This class is intended to be used as decoration for other implementations of Ass
 of Assets (for example - com.github.ykiselev.assets.SimpleAssets) and an instance of class implementing java.util.Map which will be used as internal cache, not 
 only to speed-up consecutive calls with the same asset URI but also to release any system resources held by asset (asset class should implement Closeable or 
 AutoCloseable interface). This cleanup is performed when method com.github.ykiselev.assets.ManagedAssets.close is called.  
+
+## Usage
+So user may use composition of provided classes plus implementations of three simple interfaces, like this:
+```java
+class Example {
+
+    public static void main(String[] args) {
+        // 1
+        Resources resources = resource -> Example.class.getResourceAsStream(resource.toString());
+        // 2
+        Function<Class, ReadableResource> byClass = clazz -> {
+            if (String.class.isAssignableFrom(clazz)) {
+                return (stream, resource, assets) -> readText(stream);
+            } else {
+                throw new IllegalArgumentException("Unsupported resource class:" + clazz);
+            }
+        };
+        // 3
+        Function<String, ReadableResource> byExtension = ext -> {
+            if ("text".equals(ext)) {
+                return (stream, resource, assets) -> readText(stream);
+            } else {
+                throw new IllegalArgumentException("Unsupported resource extension:" + ext);
+            }
+        };
+        // Create instance of ManagedAssets which will delegate real work to SimpleAssets
+        ManagedAssets managedAssets = new ManagedAssets(
+                new SimpleAssets(resources, byClass, byExtension),
+                new HashMap<>()
+        );
+        // Now we can load assets
+        String AssetByClass = managedAssets.load("/sample.txt", String.class);
+        String AssetByExtension = managedAssets.load("/sample.txt", null);
+        assertEquals("Hello, World!", AssetByClass);
+        assertSame(
+                AssetByClass,
+                AssetByExtension
+        );
+    }
+
+    // helper methods skipped...
+
+}
+```
+Full source code of this example can be found in src/test/java/com/github/ykiselev/assets/Example.java.
 
 # License
 

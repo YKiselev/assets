@@ -35,8 +35,10 @@ public class SimpleAssetsTest {
 
     private final Resources resources = mock(Resources.class);
 
+    @SuppressWarnings("unchecked")
     private final Function<Class, ReadableResource> byClass = mock(Function.class);
 
+    @SuppressWarnings("unchecked")
     private final Function<String, ReadableResource> byExtension = mock(Function.class);
 
     private final Assets assets = new SimpleAssets(
@@ -48,7 +50,7 @@ public class SimpleAssetsTest {
     @Test
     public void shouldLoadByClass() {
         when(byClass.apply(eq(Double.class)))
-                .thenReturn((is, a) -> Math.PI);
+                .thenReturn((is, resource, a) -> Math.PI);
         assertEquals(Math.PI, assets.load("x.double", Double.class), 0.00001);
         verify(byExtension, never()).apply(any(String.class));
     }
@@ -56,7 +58,7 @@ public class SimpleAssetsTest {
     @Test
     public void shouldLoadByExtension() {
         when(byExtension.apply(eq("double")))
-                .thenReturn((is, a) -> Math.PI);
+                .thenReturn((is, resource, a) -> Math.PI);
         assertEquals(Math.PI, assets.load("y.double", null), 0.00001);
         verify(byClass, never()).apply(any(Class.class));
     }
