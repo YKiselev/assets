@@ -26,12 +26,13 @@ import java.net.URI;
 public interface Assets extends Resources {
 
     /**
-     * Resolves readable resource from supplied URI and class.
+     * Resolves instance of {@link ReadableResource} from supplied URI and/or class. Some implementations (like {@link SimpleAssets}) require only one
+     * of {code resource}, {@code clazz} to be {@code non-null}.
      *
-     * @param resource the resource URI
-     * @param clazz    the resource class
+     * @param resource the resource URI.
+     * @param clazz    the resource class.
      * @param <T>      the type of resource
-     * @return the readable resource or {@code null}
+     * @return the readable resource or {@code null} if not found.
      * @throws ResourceException if something goes wrong
      */
     <T> ReadableResource<T> resolve(URI resource, Class<T> clazz) throws ResourceException;
