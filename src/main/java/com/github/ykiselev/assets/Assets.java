@@ -19,7 +19,7 @@ package com.github.ykiselev.assets;
 import java.net.URI;
 
 /**
- * Asset manager. Should delegate actual work of loading asset to appropriate instance of class implementing {@link ReadableResource}.
+ * Asset manager. Implementations expected to delegate actual work of loading asset to appropriate instance of class implementing {@link ReadableResource}.
  * <p>
  * Created by Y.Kiselev on 15.05.2016.
  */

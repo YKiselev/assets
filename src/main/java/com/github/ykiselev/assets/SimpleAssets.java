@@ -16,8 +16,8 @@
 
 package com.github.ykiselev.assets;
 
-import java.io.InputStream;
 import java.net.URI;
+import java.nio.channels.ReadableByteChannel;
 import java.util.function.Function;
 
 /**
@@ -47,7 +47,7 @@ public final class SimpleAssets implements Assets {
     }
 
     @Override
-    public InputStream open(URI resource) throws ResourceException {
+    public ReadableByteChannel open(URI resource) throws ResourceException {
         return this.resources.open(resource);
     }
 

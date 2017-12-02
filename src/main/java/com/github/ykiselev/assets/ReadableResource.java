@@ -17,11 +17,11 @@
 package com.github.ykiselev.assets;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
+import java.nio.channels.ReadableByteChannel;
 
 /**
- * Implementation of this interface should be able to read (de-serialize) object instance of supported class from supplied {@link InputStream}.
+ * Implementation of this interface should be able to read (de-serialize) object instance of supported class from supplied {@link ReadableByteChannel}.
  * <p>
  * Created by Y.Kiselev on 15.05.2016.
  */
@@ -36,21 +36,21 @@ public interface ReadableResource<T> {
      * @throws ResourceException if something goes wrong during de-serialization of resource.
      */
     default T read(URI resource, Assets assets) throws ResourceException {
-        try (InputStream is = assets.open(resource)) {
-            return read(is, resource, assets);
+        try (ReadableByteChannel channel = assets.open(resource)) {
+            return read(channel, resource, assets);
         } catch (IOException e) {
             throw new ResourceException(e);
         }
     }
 
     /**
-     * Reads resource from input stream
+     * Reads resource from channel.
      *
-     * @param inputStream the binary stream to read resource from.
-     * @param resource    the resource {@link URI}.
-     * @param assets      the instance of asset manager. At first glance {@link Resources} would suffice but {@link Assets} may be required for cases when we read compound asset consisting of different assets.
+     * @param channel  the binary stream to read resource from.
+     * @param resource the resource {@link URI}.
+     * @param assets   the instance of asset manager. At first glance {@link Resources} would suffice but {@link Assets} may be required for cases when we read compound asset consisting of different assets.
      * @return de-serialized resource.
      * @throws ResourceException if something goes wrong during de-serialization of resource.
      */
-    T read(InputStream inputStream, URI resource, Assets assets) throws ResourceException;
+    T read(ReadableByteChannel channel, URI resource, Assets assets) throws ResourceException;
 }

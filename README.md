@@ -12,11 +12,11 @@ Simple framework for asset management (asset here is any resource, for example i
 Asset framework consists of three interfaces:
 
 ## Resources interface
-Low-level api to resolve resource URI to java.io.InputStream
+Low-level api to resolve resource URI to java.nio.channels.ReadableByteChannel
 ```java
 interface Resources {
 
-    InputStream open(URI resource) throws ResourceException;
+    ReadableByteChannel open(URI resource) throws ResourceException;
 }
 ```
 ## Assets interface
@@ -58,37 +58,26 @@ public interface ReadableResource<T> {
 
     /**
      * Convenient method to read resource by {@link URI}
-     *
-     * @param resource the resource {@link URI}.
-     * @param assets   the instance of asset manager. At first glance {@link Resources} would suffice but {@link Assets} may be required for cases when we read compound asset consisting of different assets.
-     * @return de-serialized resource.
-     * @throws ResourceException if something goes wrong during de-serialization of resource.
      */
     default T read(URI resource, Assets assets) throws ResourceException {
-        try (InputStream is = assets.open(resource)) {
-            return read(is, resource, assets);
+        try (ReadableByteChannel channel = assets.open(resource)) {
+            return read(channel, resource, assets);
         } catch (IOException e) {
             throw new ResourceException(e);
         }
     }
 
     /**
-     * Reads resource from input stream
-     *
-     * @param inputStream the binary stream to read resource from.
-     * @param resource    the resource {@link URI}.
-     * @param assets      the instance of asset manager. At first glance {@link Resources} would suffice but {@link Assets} may be required for cases when we read compound asset consisting of different assets.
-     * @return de-serialized resource.
-     * @throws ResourceException if something goes wrong during de-serialization of resource.
+     * Reads resource from channel
      */
-    T read(InputStream inputStream, URI resource, Assets assets) throws ResourceException;
+    T read(ReadableByteChannel channel, URI resource, Assets assets) throws ResourceException;
 }
 ```
 
 ## Implementations
 ### SimpleAssets class 
 This is a base implementation of Assets interface. Instance of this class will require implementation of com.github.ykiselev.assets.Resources (which will be 
-used to resolve URI to InputStream) and two functions: Function<Class, ReadableResource> - should resolve ReadableResource by specified asset class 
+used to resolve URI to ReadableByteChannel) and two functions: Function<Class, ReadableResource> - should resolve ReadableResource by specified asset class 
 and Function<String, ReadableResource> - should resolve ReadableResource by asset's URI path extension.
 
 ### ManagedAssets class 
@@ -104,7 +93,9 @@ class Example {
 
     public static void main(String[] args) {
         // 1
-        Resources resources = resource -> Example.class.getResourceAsStream(resource.toString());
+        Resources resources = resource -> Channels.newChannel(
+                        Example.class.getResourceAsStream(resource.toString())
+                );
         // 2
         Function<Class, ReadableResource> byClass = clazz -> {
             if (String.class.isAssignableFrom(clazz)) {
@@ -136,7 +127,7 @@ class Example {
         );
     }
 
-    // helper methods skipped...
+    // other methods skipped...
 
 }
 ```

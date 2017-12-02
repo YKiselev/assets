@@ -16,16 +16,23 @@
 
 package com.github.ykiselev.assets;
 
-import java.io.InputStream;
 import java.net.URI;
+import java.nio.channels.ReadableByteChannel;
 
 /**
- * Low level resource management interface.
- * Provides method to resolve resource URI to open {@link InputStream}.
+ * Low-level resource access api.
  * <p>
  * Created by Y.Kiselev on 15.05.2016.
  */
 public interface Resources {
 
-    InputStream open(URI resource) throws ResourceException;
+    /**
+     * Opens new channel for requested resource.
+     * Caller is expected to close channel after use.
+     *
+     * @param resource the resource {@code URI}
+     * @return the readable byte channel
+     * @throws ResourceException if {@code resource} does not exists or something goes wrong during channel opening
+     */
+    ReadableByteChannel open(URI resource) throws ResourceException;
 }

@@ -17,8 +17,8 @@
 package com.github.ykiselev.assets;
 
 import java.io.Closeable;
-import java.io.InputStream;
 import java.net.URI;
+import java.nio.channels.ReadableByteChannel;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
@@ -45,13 +45,14 @@ public final class ManagedAssets implements Assets, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        for (Map.Entry<URI, Object> entry : this.cache.entrySet()) {
+        for (Map.Entry<URI, Object> entry : cache.entrySet()) {
             if (entry.getValue() instanceof Closeable) {
                 ((Closeable) entry.getValue()).close();
             } else if (entry.getValue() instanceof AutoCloseable) {
                 ((AutoCloseable) entry.getValue()).close();
             }
         }
+        cache.clear();
     }
 
     @Override
@@ -60,7 +61,7 @@ public final class ManagedAssets implements Assets, AutoCloseable {
     }
 
     @Override
-    public InputStream open(URI resource) throws ResourceException {
+    public ReadableByteChannel open(URI resource) throws ResourceException {
         return assets.open(resource);
     }
 }

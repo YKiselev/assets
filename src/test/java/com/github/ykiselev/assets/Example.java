@@ -18,9 +18,8 @@ package com.github.ykiselev.assets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.HashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -35,7 +34,9 @@ public final class Example {
 
     public static void main(String[] args) {
         // 1
-        Resources resources = resource -> Example.class.getResourceAsStream(resource.toString());
+        Resources resources = resource -> Channels.newChannel(
+                Example.class.getResourceAsStream(resource.toString())
+        );
         // 2
         Function<Class, ReadableResource> byClass = clazz -> {
             if (String.class.isAssignableFrom(clazz)) {
@@ -70,8 +71,8 @@ public final class Example {
     /**
      * Please note: this method replaces line endings with '\n' which is Ok here but please don't use it in production.
      */
-    private static String readText(InputStream stream) {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+    private static String readText(ReadableByteChannel channel) {
+        try (BufferedReader br = new BufferedReader(Channels.newReader(channel, "UTF-8"))) {
             return br.lines().collect(Collectors.joining("\n"));
         } catch (IOException e) {
             throw new RuntimeException(e);
