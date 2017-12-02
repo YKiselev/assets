@@ -38,6 +38,30 @@ public interface Assets extends Resources {
     <T> ReadableResource<T> resolve(URI resource, Class<T> clazz) throws ResourceException;
 
     /**
+     * Convenient method to resolve {@link ReadableResource} by asset class.
+     *
+     * @param clazz the asset class.
+     * @param <T>   the type of asset class.
+     * @return the readable resource or {@code null} if not found.
+     * @throws ResourceException if something goes wrong
+     */
+    default <T> ReadableResource<T> resolve(Class<T> clazz) throws ResourceException {
+        return resolve(null, clazz);
+    }
+
+    /**
+     * Convenient method to resolve {@link ReadableResource} by asset class.
+     *
+     * @param resource the asset {@link URI}.
+     * @param <T>      the type of asset class.
+     * @return the readable resource or {@code null} if not found.
+     * @throws ResourceException if something goes wrong
+     */
+    default <T> ReadableResource<T> resolve(URI resource) throws ResourceException {
+        return resolve(resource, null);
+    }
+
+    /**
      * Loads asset using one of registered {@link ReadableResource}'s
      *
      * @param resource the resource to load
