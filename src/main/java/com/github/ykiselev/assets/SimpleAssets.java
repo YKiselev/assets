@@ -16,11 +16,14 @@
 
 package com.github.ykiselev.assets;
 
-import java.net.URI;
 import java.nio.channels.ReadableByteChannel;
 import java.util.function.Function;
 
 /**
+ * This implementation uses two functions to resolve {@link ReadableResource} - {@code byClass} and {@code byExtension}. When {@code non-null} values of both
+ * resource name and class are supplied to {@link Assets#resolve(java.lang.String, java.lang.Class)} or {@link Assets#load(java.lang.String, java.lang.Class)}
+ * search by-class takes place first and only if {@code byClass} function returns {@code null} the {@code byExtension} function is invoked.
+ * <p>
  * Created by Y.Kiselev on 15.05.2016.
  */
 public final class SimpleAssets implements Assets {
@@ -37,23 +40,25 @@ public final class SimpleAssets implements Assets {
         this.byExtension = byExtension;
     }
 
-    private String extension(URI resource) {
-        final String path = resource.getPath();
-        final int i = path.lastIndexOf('.');
+    private String extension(String resource) {
+        if (resource == null) {
+            return null;
+        }
+        final int i = resource.lastIndexOf('.');
         if (i == -1) {
             return null;
         }
-        return path.substring(i + 1);
+        return resource.substring(i + 1);
     }
 
     @Override
-    public ReadableByteChannel open(URI resource) throws ResourceException {
+    public ReadableByteChannel open(String resource) throws ResourceException {
         return this.resources.open(resource);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> ReadableResource<T> resolve(URI resource, Class<T> clazz) throws ResourceException {
+    public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
         final ReadableResource result;
         if (clazz == null) {
             result = byExtension.apply(extension(resource));

@@ -35,7 +35,7 @@ public final class Example {
     public static void main(String[] args) {
         // 1
         Resources resources = resource -> Channels.newChannel(
-                Example.class.getResourceAsStream(resource.toString())
+                Example.class.getResourceAsStream(resource)
         );
         // 2
         Function<Class, ReadableResource> byClass = clazz -> {

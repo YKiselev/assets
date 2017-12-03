@@ -30,12 +30,12 @@ public interface ReadableResource<T> {
     /**
      * Convenient method to read resource by {@link URI}
      *
-     * @param resource the resource {@link URI}.
+     * @param resource the resource name.
      * @param assets   the instance of asset manager. At first glance {@link Resources} would suffice but {@link Assets} may be required for cases when we read compound asset consisting of different assets.
      * @return de-serialized resource.
      * @throws ResourceException if something goes wrong during de-serialization of resource.
      */
-    default T read(URI resource, Assets assets) throws ResourceException {
+    default T read(String resource, Assets assets) throws ResourceException {
         try (ReadableByteChannel channel = assets.open(resource)) {
             return read(channel, resource, assets);
         } catch (IOException e) {
@@ -47,10 +47,10 @@ public interface ReadableResource<T> {
      * Reads resource from channel.
      *
      * @param channel  the binary stream to read resource from.
-     * @param resource the resource {@link URI}.
+     * @param resource the resource name.
      * @param assets   the instance of asset manager. At first glance {@link Resources} would suffice but {@link Assets} may be required for cases when we read compound asset consisting of different assets.
      * @return de-serialized resource.
      * @throws ResourceException if something goes wrong during de-serialization of resource.
      */
-    T read(ReadableByteChannel channel, URI resource, Assets assets) throws ResourceException;
+    T read(ReadableByteChannel channel, String resource, Assets assets) throws ResourceException;
 }

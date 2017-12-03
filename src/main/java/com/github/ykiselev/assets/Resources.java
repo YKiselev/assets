@@ -16,7 +16,6 @@
 
 package com.github.ykiselev.assets;
 
-import java.net.URI;
 import java.nio.channels.ReadableByteChannel;
 
 /**
@@ -30,9 +29,9 @@ public interface Resources {
      * Opens new channel for requested resource.
      * Caller is expected to close channel after use.
      *
-     * @param resource the resource {@code URI}
+     * @param resource the resource name
      * @return the readable byte channel
      * @throws ResourceException if {@code resource} does not exists or something goes wrong during channel opening
      */
-    ReadableByteChannel open(URI resource) throws ResourceException;
+    ReadableByteChannel open(String resource) throws ResourceException;
 }

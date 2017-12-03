@@ -16,7 +16,7 @@ Low-level api to resolve resource URI to java.nio.channels.ReadableByteChannel
 ```java
 interface Resources {
 
-    ReadableByteChannel open(URI resource) throws ResourceException;
+    ReadableByteChannel open(String resource) throws ResourceException;
 }
 ```
 ## Assets interface
@@ -25,9 +25,9 @@ Top-level interface which extends com.github.ykiselev.assets.Resources and adds 
 interface Assets extends Resources {
 
     /**
-     * Resolves readable resource from supplied URI and class.
+     * Resolves readable resource from supplied name and class.
      */
-    <T> ReadableResource<T> resolve(URI resource, Class<T> clazz) throws ResourceException;
+    <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException;
 
     /**
      * Convenient method to resolve {@link ReadableResource} by asset class.
@@ -37,31 +37,31 @@ interface Assets extends Resources {
     }
 
     /**
-     * Convenient method to resolve {@link ReadableResource} by asset class.
+     * Convenient method to resolve {@link ReadableResource} by asset name.
      */
-    default <T> ReadableResource<T> resolve(URI resource) throws ResourceException {
+    default <T> ReadableResource<T> resolve(String resource) throws ResourceException {
         return resolve(resource, null);
     }
 
     /**
      * Loads asset using one of registered {@link ReadableResource}'s
      */
-    default <T> T load(URI resource, Class<T> clazz) throws ResourceException {
+    default <T> T load(String resource, Class<T> clazz) throws ResourceException {
         return resolve(resource, clazz).read(resource, this);
     }
 
     /**
-     * Convenient method taking only one string argument as a resource name.
+     * Convenient method taking only resource name as argument.
      */
     default <T> T load(String resource) throws ResourceException {
         return load(resource, null);
     }
 
     /**
-     * Convenient method taking only one string argument as a resource name.
+     * Convenient method taking only asset class as a argument.
      */
-    default <T> T load(String resource, Class<T> clazz) throws ResourceException {
-        return load(URI.create(resource), clazz);
+    default <T> T load(Class<T> clazz) throws ResourceException {
+        return load(null, clazz);
     }
 }
 ```
@@ -71,9 +71,9 @@ Api to be implemented by user for each supported asset class
 public interface ReadableResource<T> {
 
     /**
-     * Convenient method to read resource by {@link URI}
+     * Convenient method to read resource by name
      */
-    default T read(URI resource, Assets assets) throws ResourceException {
+    default T read(String resource, Assets assets) throws ResourceException {
         try (ReadableByteChannel channel = assets.open(resource)) {
             return read(channel, resource, assets);
         } catch (IOException e) {
@@ -84,20 +84,20 @@ public interface ReadableResource<T> {
     /**
      * Reads resource from channel
      */
-    T read(ReadableByteChannel channel, URI resource, Assets assets) throws ResourceException;
+    T read(ReadableByteChannel channel, String resource, Assets assets) throws ResourceException;
 }
 ```
 
 ## Implementations
 ### SimpleAssets class 
 This is a base implementation of Assets interface. Instance of this class will require implementation of com.github.ykiselev.assets.Resources (which will be 
-used to resolve URI to ReadableByteChannel) and two functions: Function<Class, ReadableResource> - should resolve ReadableResource by specified asset class 
-and Function<String, ReadableResource> - should resolve ReadableResource by asset's URI path extension.
+used to resolve resource name to ReadableByteChannel) and two functions: Function<Class, ReadableResource> - should resolve ReadableResource by specified asset class 
+and Function<String, ReadableResource> - should resolve ReadableResource by asset's path extension.
 
 ### ManagedAssets class 
 This class is intended to be used as decoration for other implementations of Assets. To create instance of this class user will need to provide implementation 
 of Assets (for example - com.github.ykiselev.assets.SimpleAssets) and an instance of class implementing java.util.Map which will be used as internal cache, not 
-only to speed-up consecutive calls with the same asset URI but also to release any system resources held by asset (asset class should implement Closeable or 
+only to speed-up consecutive calls with the same asset name but also to release any system resources held by asset (asset class should implement Closeable or 
 AutoCloseable interface). This cleanup is performed when method com.github.ykiselev.assets.ManagedAssets.close is called.  
 
 ## Usage
@@ -108,7 +108,7 @@ class Example {
     public static void main(String[] args) {
         // 1
         Resources resources = resource -> Channels.newChannel(
-                        Example.class.getResourceAsStream(resource.toString())
+                        Example.class.getResourceAsStream(resource)
                 );
         // 2
         Function<Class, ReadableResource> byClass = clazz -> {

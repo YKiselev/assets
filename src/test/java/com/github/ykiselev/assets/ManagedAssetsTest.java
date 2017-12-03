@@ -19,7 +19,6 @@ package com.github.ykiselev.assets;
 import org.junit.Test;
 
 import java.io.Closeable;
-import java.net.URI;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertSame;
@@ -45,21 +44,21 @@ public class ManagedAssetsTest {
 
     @Test
     public void shouldLoadOnce() {
-        when(delegate.load(any(URI.class), eq(String.class)))
+        when(delegate.load(any(String.class), eq(String.class)))
                 .thenReturn("A");
         assertSame(
                 assets.load("a", String.class),
                 assets.load("a", String.class)
         );
-        verify(delegate, atLeast(1)).load(any(URI.class), eq(String.class));
-        verify(delegate, atMost(1)).load(any(URI.class), eq(String.class));
-        verify(delegate, atMost(1)).open(any(URI.class));
+        verify(delegate, atLeast(1)).load(any(String.class), eq(String.class));
+        verify(delegate, atMost(1)).load(any(String.class), eq(String.class));
+        verify(delegate, atMost(1)).open(any(String.class));
     }
 
     @Test
     public void shouldCloseAutoCloseables() throws Exception {
         final AutoCloseable a = mock(AutoCloseable.class);
-        when(delegate.load(any(URI.class), eq(AutoCloseable.class)))
+        when(delegate.load(any(String.class), eq(AutoCloseable.class)))
                 .thenReturn(a);
         assertSame(a, assets.load("ac", AutoCloseable.class));
         assets.close();
@@ -69,7 +68,7 @@ public class ManagedAssetsTest {
     @Test
     public void shouldCloseCloseables() throws Exception {
         final Closeable c = mock(Closeable.class);
-        when(delegate.load(any(URI.class), eq(Closeable.class)))
+        when(delegate.load(any(String.class), eq(Closeable.class)))
                 .thenReturn(c);
         assertSame(c, assets.load("c", Closeable.class));
         assets.close();

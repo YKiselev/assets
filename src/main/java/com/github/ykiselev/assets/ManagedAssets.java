@@ -17,7 +17,6 @@
 package com.github.ykiselev.assets;
 
 import java.io.Closeable;
-import java.net.URI;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Map;
 
@@ -30,22 +29,22 @@ public final class ManagedAssets implements Assets, AutoCloseable {
 
     private final Assets assets;
 
-    private final Map<URI, Object> cache;
+    private final Map<String, Object> cache;
 
-    public ManagedAssets(Assets assets, Map<URI, Object> cache) {
+    public ManagedAssets(Assets assets, Map<String, Object> cache) {
         this.assets = requireNonNull(assets);
         this.cache = requireNonNull(cache);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T load(URI resource, Class<T> clazz) throws ResourceException {
+    public <T> T load(String resource, Class<T> clazz) throws ResourceException {
         return (T) cache.computeIfAbsent(resource, r -> assets.load(r, clazz));
     }
 
     @Override
     public void close() throws Exception {
-        for (Map.Entry<URI, Object> entry : cache.entrySet()) {
+        for (Map.Entry<String, Object> entry : cache.entrySet()) {
             if (entry.getValue() instanceof Closeable) {
                 ((Closeable) entry.getValue()).close();
             } else if (entry.getValue() instanceof AutoCloseable) {
@@ -56,12 +55,12 @@ public final class ManagedAssets implements Assets, AutoCloseable {
     }
 
     @Override
-    public <T> ReadableResource<T> resolve(URI resource, Class<T> clazz) throws ResourceException {
+    public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
         return assets.resolve(resource, clazz);
     }
 
     @Override
-    public ReadableByteChannel open(URI resource) throws ResourceException {
+    public ReadableByteChannel open(String resource) throws ResourceException {
         return assets.open(resource);
     }
 }

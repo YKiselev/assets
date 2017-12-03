@@ -52,6 +52,7 @@ public class SimpleAssetsTest {
         when(byClass.apply(eq(Double.class)))
                 .thenReturn((is, resource, a) -> Math.PI);
         assertEquals(Math.PI, assets.load("x.double", Double.class), 0.00001);
+        assertEquals(Math.PI, assets.load(Double.class), 0.00001);
         verify(byExtension, never()).apply(any(String.class));
     }
 
@@ -59,7 +60,7 @@ public class SimpleAssetsTest {
     public void shouldLoadByExtension() {
         when(byExtension.apply(eq("double")))
                 .thenReturn((is, resource, a) -> Math.PI);
-        assertEquals(Math.PI, assets.load("y.double", null), 0.00001);
+        assertEquals(Math.PI, assets.load("y.double"), 0.00001);
         verify(byClass, never()).apply(any(Class.class));
     }
 }
