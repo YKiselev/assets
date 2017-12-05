@@ -52,7 +52,6 @@ public class SimpleAssetsTest {
         when(byClass.apply(eq(Double.class)))
                 .thenReturn((is, resource, a) -> Math.PI);
         assertEquals(Math.PI, assets.load("x.double", Double.class), 0.00001);
-        assertEquals(Math.PI, assets.load(Double.class), 0.00001);
         verify(byExtension, never()).apply(any(String.class));
     }
 

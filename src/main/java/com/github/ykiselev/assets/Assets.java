@@ -84,15 +84,4 @@ public interface Assets extends Resources {
         return load(resource, null);
     }
 
-    /**
-     * Convenient method taking only asset class.
-     *
-     * @param clazz    the class of resource or {@code null} if not known
-     * @param <T>      the type of resource
-     * @return the requested resource
-     * @throws ResourceException if something goes wrong during the resource loading process.
-     */
-    default <T> T load(Class<T> clazz) throws ResourceException {
-        return load(null, clazz);
-    }
 }

@@ -43,15 +43,21 @@ public final class ManagedAssets implements Assets, AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
-        for (Map.Entry<String, Object> entry : cache.entrySet()) {
-            if (entry.getValue() instanceof Closeable) {
-                ((Closeable) entry.getValue()).close();
-            } else if (entry.getValue() instanceof AutoCloseable) {
-                ((AutoCloseable) entry.getValue()).close();
-            }
-        }
+    public void close() {
+        cache.forEach((key, value) -> close(value));
         cache.clear();
+    }
+
+    private void close(Object asset) throws IllegalStateException {
+        try {
+            if (asset instanceof Closeable) {
+                ((Closeable) asset).close();
+            } else if (asset instanceof AutoCloseable) {
+                ((AutoCloseable) asset).close();
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override

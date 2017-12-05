@@ -56,13 +56,6 @@ interface Assets extends Resources {
     default <T> T load(String resource) throws ResourceException {
         return load(resource, null);
     }
-
-    /**
-     * Convenient method taking only asset class as a argument.
-     */
-    default <T> T load(Class<T> clazz) throws ResourceException {
-        return load(null, clazz);
-    }
 }
 ```
 ## ReadableResource<T> interface
