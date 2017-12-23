@@ -68,9 +68,7 @@ public interface Assets extends Resources {
      * @return the requested resource
      * @throws ResourceException if something goes wrong during the resource loading process.
      */
-    default <T> T load(String resource, Class<T> clazz) throws ResourceException {
-        return resolve(resource, clazz).read(resource, this);
-    }
+    <T> T load(String resource, Class<T> clazz) throws ResourceException;
 
     /**
      * Convenient method taking only one string argument as a resource name.

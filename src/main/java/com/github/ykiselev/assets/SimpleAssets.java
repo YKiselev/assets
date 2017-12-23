@@ -21,7 +21,7 @@ import java.util.function.Function;
 
 /**
  * This implementation uses two functions to resolve {@link ReadableResource} - {@code byClass} and {@code byExtension}. When {@code non-null} values of both
- * resource name and class are supplied to {@link Assets#resolve(java.lang.String, java.lang.Class)} or {@link Assets#load(java.lang.String, java.lang.Class)}
+ * resource name and class are passed into {@link Assets#resolve(java.lang.String, java.lang.Class)} or {@link Assets#load(java.lang.String, java.lang.Class)}
  * search by-class takes place first and only if {@code byClass} function returns {@code null} the {@code byExtension} function is invoked.
  * <p>
  * Created by Y.Kiselev on 15.05.2016.
@@ -66,5 +66,10 @@ public final class SimpleAssets implements Assets {
             result = byClass.apply(clazz);
         }
         return (ReadableResource<T>) result;
+    }
+
+    @Override
+    public <T> T load(String resource, Class<T> clazz) throws ResourceException {
+        return resolve(resource, clazz).read(resource, this);
     }
 }
