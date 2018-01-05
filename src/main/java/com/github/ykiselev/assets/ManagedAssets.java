@@ -40,7 +40,12 @@ public final class ManagedAssets implements Assets, AutoCloseable {
     @Override
     @SuppressWarnings("unchecked")
     public <T> Optional<T> tryLoad(String resource, Class<T> clazz) throws ResourceException {
-        return (Optional<T>) cache.computeIfAbsent(resource, r -> doTryLoad(r, clazz));
+        final Optional<?> opt = cache.get(resource);
+        if (opt != null) {
+            return (Optional<T>) opt;
+        }
+        cache.putIfAbsent(resource, doTryLoad(resource, clazz));
+        return (Optional<T>) cache.get(resource);
     }
 
     /**
