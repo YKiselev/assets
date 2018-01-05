@@ -16,6 +16,8 @@
 
 package com.github.ykiselev.assets;
 
+import java.util.Optional;
+
 /**
  * Asset manager. Implementations expected to delegate actual work of loading asset to appropriate instance of class implementing {@link ReadableResource}.
  * <p>
@@ -66,9 +68,23 @@ public interface Assets extends Resources {
      * @param clazz    the class of resource or {@code null} if not known
      * @param <T>      the type of resource
      * @return the requested resource
+     * @throws ResourceException if resource not found or something goes wrong during the resource loading process.
+     */
+    default <T> T load(String resource, Class<T> clazz) throws ResourceException {
+        return tryLoad(resource, clazz)
+                .orElseThrow(() -> new ResourceException("Unable to load " + resource));
+    }
+
+    /**
+     * Loads asset using one of registered {@link ReadableResource}'s
+     *
+     * @param resource the resource name
+     * @param clazz    the class of resource or {@code null} if not known
+     * @param <T>      the type of resource
+     * @return the requested resource or nothing
      * @throws ResourceException if something goes wrong during the resource loading process.
      */
-    <T> T load(String resource, Class<T> clazz) throws ResourceException;
+    <T> Optional<T> tryLoad(String resource, Class<T> clazz) throws ResourceException;
 
     /**
      * Convenient method taking only one string argument as a resource name.
@@ -80,6 +96,18 @@ public interface Assets extends Resources {
      */
     default <T> T load(String resource) throws ResourceException {
         return load(resource, null);
+    }
+
+    /**
+     * Convenient method taking only one string argument as a resource name.
+     *
+     * @param resource the resource name
+     * @param <T>      the type of resource
+     * @return the requested resource or nothing
+     * @throws ResourceException if something goes wrong during the resource loading process.
+     */
+    default <T> Optional<T> tryLoad(String resource) throws ResourceException {
+        return tryLoad(resource, null);
     }
 
 }

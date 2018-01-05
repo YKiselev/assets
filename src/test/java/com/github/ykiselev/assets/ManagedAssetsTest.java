@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import java.io.Closeable;
 import java.util.HashMap;
+import java.util.Optional;
 
 import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,22 +45,22 @@ public class ManagedAssetsTest {
 
     @Test
     public void shouldLoadOnce() {
-        when(delegate.load(any(String.class), eq(String.class)))
-                .thenReturn("A");
+        when(delegate.tryLoad(any(String.class), eq(String.class)))
+                .thenReturn(Optional.of("A"));
         assertSame(
                 assets.load("a", String.class),
                 assets.load("a", String.class)
         );
-        verify(delegate, atLeast(1)).load(any(String.class), eq(String.class));
-        verify(delegate, atMost(1)).load(any(String.class), eq(String.class));
+        verify(delegate, atLeast(1)).tryLoad(any(String.class), eq(String.class));
+        verify(delegate, atMost(1)).tryLoad(any(String.class), eq(String.class));
         verify(delegate, atMost(1)).open(any(String.class));
     }
 
     @Test
     public void shouldCloseAutoCloseables() throws Exception {
         final AutoCloseable a = mock(AutoCloseable.class);
-        when(delegate.load(any(String.class), eq(AutoCloseable.class)))
-                .thenReturn(a);
+        when(delegate.tryLoad(any(String.class), eq(AutoCloseable.class)))
+                .thenReturn(Optional.of(a));
         assertSame(a, assets.load("ac", AutoCloseable.class));
         assets.close();
         verify(a, atLeast(1)).close();
@@ -68,8 +69,8 @@ public class ManagedAssetsTest {
     @Test
     public void shouldCloseCloseables() throws Exception {
         final Closeable c = mock(Closeable.class);
-        when(delegate.load(any(String.class), eq(Closeable.class)))
-                .thenReturn(c);
+        when(delegate.tryLoad(any(String.class), eq(Closeable.class)))
+                .thenReturn(Optional.of(c));
         assertSame(c, assets.load("c", Closeable.class));
         assets.close();
         verify(c, atLeast(1)).close();

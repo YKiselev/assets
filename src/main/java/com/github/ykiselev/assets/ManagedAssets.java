@@ -30,22 +30,22 @@ public final class ManagedAssets implements Assets, AutoCloseable {
 
     private final Assets assets;
 
-    private final Map<String, Object> cache;
+    private final Map<String, Optional<?>> cache;
 
-    public ManagedAssets(Assets assets, Map<String, Object> cache) {
+    public ManagedAssets(Assets assets, Map<String, Optional<?>> cache) {
         this.assets = requireNonNull(assets);
         this.cache = requireNonNull(cache);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T load(String resource, Class<T> clazz) throws ResourceException {
-        return (T) cache.computeIfAbsent(resource, r -> assets.load(r, clazz));
+    public <T> Optional<T> tryLoad(String resource, Class<T> clazz) throws ResourceException {
+        return (Optional<T>) cache.computeIfAbsent(resource, r -> assets.tryLoad(r, clazz));
     }
 
     @Override
     public void close() {
-        cache.forEach((key, value) -> close(value));
+        cache.forEach((key, value) -> value.ifPresent(this::close));
         cache.clear();
     }
 

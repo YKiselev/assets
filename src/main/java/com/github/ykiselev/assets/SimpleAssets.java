@@ -70,7 +70,7 @@ public final class SimpleAssets implements Assets {
     }
 
     @Override
-    public <T> T load(String resource, Class<T> clazz) throws ResourceException {
-        return resolve(resource, clazz).read(resource, this).orElse(null);
+    public <T> Optional<T> tryLoad(String resource, Class<T> clazz) throws ResourceException {
+        return resolve(resource, clazz).read(resource, this);
     }
 }
