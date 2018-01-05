@@ -40,7 +40,21 @@ public final class ManagedAssets implements Assets, AutoCloseable {
     @Override
     @SuppressWarnings("unchecked")
     public <T> Optional<T> tryLoad(String resource, Class<T> clazz) throws ResourceException {
-        return (Optional<T>) cache.computeIfAbsent(resource, r -> assets.tryLoad(r, clazz));
+        return (Optional<T>) cache.computeIfAbsent(resource, r -> doTryLoad(r, clazz));
+    }
+
+    /**
+     * This override is needed to pass reference to this class to {@link ReadableResource} (to use caching of sub-assets)
+     *
+     * @param resource the resource
+     * @param clazz    the resource class
+     * @param <T>      the type parameter
+     * @return the loaded resource or nothing
+     * @throws ResourceException if something goes wrong during de-serialization of asset
+     */
+    private <T> Optional<T> doTryLoad(String resource, Class<T> clazz) throws ResourceException {
+        return assets.resolve(resource, clazz)
+                .read(resource, this);
     }
 
     @Override
