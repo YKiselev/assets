@@ -16,8 +16,11 @@
 
 package com.github.ykiselev.assets;
 
+import org.junit.Before;
 import org.junit.Test;
 
+import java.nio.channels.ReadableByteChannel;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
@@ -46,6 +49,14 @@ public class SimpleAssetsTest {
             byClass,
             byExtension
     );
+
+    @Before
+    public void setUp() {
+        when(resources.open(any(String.class)))
+                .thenReturn(
+                        Optional.of(mock(ReadableByteChannel.class))
+                );
+    }
 
     @Test
     public void shouldLoadByClass() {

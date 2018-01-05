@@ -19,6 +19,7 @@ package com.github.ykiselev.assets;
 import java.io.Closeable;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
@@ -66,7 +67,7 @@ public final class ManagedAssets implements Assets, AutoCloseable {
     }
 
     @Override
-    public ReadableByteChannel open(String resource) throws ResourceException {
+    public Optional<ReadableByteChannel> open(String resource) throws ResourceException {
         return assets.open(resource);
     }
 }

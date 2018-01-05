@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -34,8 +35,10 @@ public final class Example {
 
     public static void main(String[] args) {
         // 1
-        Resources resources = resource -> Channels.newChannel(
-                Example.class.getResourceAsStream(resource)
+        Resources resources = resource -> Optional.of(
+                Channels.newChannel(
+                        Example.class.getResourceAsStream(resource)
+                )
         );
         // 2
         Function<Class, ReadableResource> byClass = clazz -> {

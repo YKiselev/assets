@@ -16,7 +16,7 @@ Low-level api to resolve resource URI to java.nio.channels.ReadableByteChannel
 ```java
 interface Resources {
 
-    ReadableByteChannel open(String resource) throws ResourceException;
+    Optional<ReadableByteChannel> open(String resource) throws ResourceException;
 }
 ```
 ## Assets interface
@@ -62,14 +62,10 @@ Api to be implemented by user for each supported asset class
 public interface ReadableResource<T> {
 
     /**
-     * Convenient method to read resource by name
+     * Convenient method to read resource
      */
-    default T read(String resource, Assets assets) throws ResourceException {
-        try (ReadableByteChannel channel = assets.open(resource)) {
-            return read(channel, resource, assets);
-        } catch (IOException e) {
-            throw new ResourceException(e);
-        }
+    default Optional<T> read(String resource, Assets assets) throws ResourceException {
+        return assets.open(resource).map(ch -> read(ch, resource, assets));
     }
 
     /**
@@ -98,9 +94,11 @@ class Example {
 
     public static void main(String[] args) {
         // 1
-        Resources resources = resource -> Channels.newChannel(
-                        Example.class.getResourceAsStream(resource)
-                );
+        Resources resources = resource -> Optional.of(
+            Channels.newChannel(
+                    Example.class.getResourceAsStream(resource)
+            )
+        );
         // 2
         Function<Class, ReadableResource> byClass = clazz -> {
             if (String.class.isAssignableFrom(clazz)) {

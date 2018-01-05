@@ -17,6 +17,7 @@
 package com.github.ykiselev.assets;
 
 import java.nio.channels.ReadableByteChannel;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -52,7 +53,7 @@ public final class SimpleAssets implements Assets {
     }
 
     @Override
-    public ReadableByteChannel open(String resource) throws ResourceException {
+    public Optional<ReadableByteChannel> open(String resource) throws ResourceException {
         return this.resources.open(resource);
     }
 
@@ -70,6 +71,6 @@ public final class SimpleAssets implements Assets {
 
     @Override
     public <T> T load(String resource, Class<T> clazz) throws ResourceException {
-        return resolve(resource, clazz).read(resource, this);
+        return resolve(resource, clazz).read(resource, this).orElse(null);
     }
 }

@@ -17,6 +17,7 @@
 package com.github.ykiselev.assets;
 
 import java.nio.channels.ReadableByteChannel;
+import java.util.Optional;
 
 /**
  * Low-level resource access api.
@@ -33,5 +34,5 @@ public interface Resources {
      * @return the readable byte channel
      * @throws ResourceException if {@code resource} does not exists or something goes wrong during channel opening
      */
-    ReadableByteChannel open(String resource) throws ResourceException;
+    Optional<ReadableByteChannel> open(String resource) throws ResourceException;
 }
