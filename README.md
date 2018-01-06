@@ -46,13 +46,28 @@ interface Assets extends Resources {
     /**
      * Loads asset using one of registered {@link ReadableResource}'s
      */
-    <T> T load(String resource, Class<T> clazz) throws ResourceException;
+    default <T> T load(String resource, Class<T> clazz) throws ResourceException {
+        return tryLoad(resource, clazz)
+                .orElseThrow(() -> new ResourceException("Unable to load " + resource));
+    }
 
+    /**
+     * Tries to load asset using one of registered {@link ReadableResource}'s
+     */
+    <T> Optional<T> tryLoad(String resource, Class<T> clazz) throws ResourceException;
+    
     /**
      * Convenient method taking only resource name as argument.
      */
     default <T> T load(String resource) throws ResourceException {
         return load(resource, null);
+    }
+
+    /**
+     * Convenient method taking only resource name as argument.
+     */
+    default <T> Optional<T> tryLoad(String resource) throws ResourceException {
+        return tryLoad(resource, null);
     }
 }
 ```
