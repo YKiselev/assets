@@ -23,43 +23,7 @@ import java.util.Optional;
  * <p>
  * Created by Y.Kiselev on 15.05.2016.
  */
-public interface Assets extends Resources {
-
-    /**
-     * Resolves instance of {@link ReadableResource} from supplied URI and/or class. Some implementations (like {@link SimpleAssets}) require only one
-     * of {code resource}, {@code clazz} to be {@code non-null}.
-     *
-     * @param <T>      the type of resource
-     * @param resource the resource name.
-     * @param clazz    the resource class.
-     * @return the readable resource or {@code null} if not found.
-     * @throws ResourceException if something goes wrong
-     */
-    <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException;
-
-    /**
-     * Convenient method to resolve {@link ReadableResource} by asset class.
-     *
-     * @param clazz the asset class.
-     * @param <T>   the type of asset class.
-     * @return the readable resource or {@code null} if not found.
-     * @throws ResourceException if something goes wrong
-     */
-    default <T> ReadableResource<T> resolve(Class<T> clazz) throws ResourceException {
-        return resolve(null, clazz);
-    }
-
-    /**
-     * Convenient method to resolve {@link ReadableResource} by asset class.
-     *
-     * @param resource the resource name.
-     * @param <T>      the type of asset class.
-     * @return the readable resource or {@code null} if not found.
-     * @throws ResourceException if something goes wrong
-     */
-    default <T> ReadableResource<T> resolve(String resource) throws ResourceException {
-        return resolve(resource, null);
-    }
+public interface Assets extends ReadableResources {
 
     /**
      * Loads asset using one of registered {@link ReadableResource}'s

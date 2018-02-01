@@ -16,8 +16,6 @@
 
 package com.github.ykiselev.assets;
 
-import java.io.Closeable;
-import java.nio.channels.ReadableByteChannel;
 import java.util.Map;
 import java.util.Optional;
 
@@ -44,22 +42,13 @@ public final class ManagedAssets implements Assets, AutoCloseable {
         if (opt != null) {
             return (Optional<T>) opt;
         }
-        cache.putIfAbsent(resource, doTryLoad(resource, clazz));
+        cache.putIfAbsent(resource, assets.tryLoad(resource, clazz));
         return (Optional<T>) cache.get(resource);
     }
 
-    /**
-     * This override is needed to pass reference to this class to {@link ReadableResource} (to use caching of sub-assets)
-     *
-     * @param resource the resource
-     * @param clazz    the resource class
-     * @param <T>      the type parameter
-     * @return the loaded resource or nothing
-     * @throws ResourceException if something goes wrong during de-serialization of asset
-     */
-    private <T> Optional<T> doTryLoad(String resource, Class<T> clazz) throws ResourceException {
-        return assets.resolve(resource, clazz)
-                .read(resource, this);
+    @Override
+    public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
+        return assets.resolve(resource, clazz);
     }
 
     @Override
@@ -70,23 +59,11 @@ public final class ManagedAssets implements Assets, AutoCloseable {
 
     private void close(Object asset) throws IllegalStateException {
         try {
-            if (asset instanceof Closeable) {
-                ((Closeable) asset).close();
-            } else if (asset instanceof AutoCloseable) {
+            if (asset instanceof AutoCloseable) {
                 ((AutoCloseable) asset).close();
             }
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    @Override
-    public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
-        return assets.resolve(resource, clazz);
-    }
-
-    @Override
-    public Optional<ReadableByteChannel> open(String resource) throws ResourceException {
-        return assets.open(resource);
     }
 }

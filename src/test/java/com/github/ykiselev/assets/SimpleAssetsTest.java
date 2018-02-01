@@ -21,14 +21,11 @@ import org.junit.Test;
 
 import java.nio.channels.ReadableByteChannel;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -38,17 +35,12 @@ public class SimpleAssetsTest {
 
     private final Resources resources = mock(Resources.class);
 
-    @SuppressWarnings("unchecked")
-    private final Function<Class, ReadableResource> byClass = mock(Function.class);
+    private final ReadableResources readableResources = mock(ReadableResources.class);
 
     @SuppressWarnings("unchecked")
-    private final Function<String, ReadableResource> byExtension = mock(Function.class);
+    private final ReadableResource<Double> readableResource = mock(ReadableResource.class);
 
-    private final Assets assets = new SimpleAssets(
-            resources,
-            byClass,
-            byExtension
-    );
+    private final Assets assets = new SimpleAssets(resources, readableResources);
 
     @Before
     public void setUp() {
@@ -56,21 +48,16 @@ public class SimpleAssetsTest {
                 .thenReturn(
                         Optional.of(mock(ReadableByteChannel.class))
                 );
+        when(readableResource.read(any(ReadableByteChannel.class), any(), any()))
+                .thenReturn(Math.PI);
     }
 
     @Test
-    public void shouldLoadByClass() {
-        when(byClass.apply(eq(Double.class)))
-                .thenReturn((is, resource, a) -> Math.PI);
-        assertEquals(Math.PI, assets.load("x.double", Double.class), 0.00001);
-        verify(byExtension, never()).apply(any(String.class));
-    }
-
-    @Test
-    public void shouldLoadByExtension() {
-        when(byExtension.apply(eq("double")))
-                .thenReturn((is, resource, a) -> Math.PI);
-        assertEquals(Math.PI, assets.load("y.double"), 0.00001);
-        verify(byClass, never()).apply(any(Class.class));
+    public void shouldLoad() {
+        when(readableResources.resolve(any(String.class), eq(Double.class)))
+                .thenReturn(readableResource);
+        when(readableResource.read(any(ReadableByteChannel.class), eq("x"), eq(assets)))
+                .thenReturn(Math.PI);
+        assertEquals(Math.PI, assets.load("x", Double.class), 0.00001);
     }
 }

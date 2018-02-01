@@ -16,14 +16,12 @@
 
 package com.github.ykiselev.assets;
 
-import java.nio.channels.ReadableByteChannel;
 import java.util.Optional;
-import java.util.function.Function;
+
+import static java.util.Objects.requireNonNull;
 
 /**
- * This implementation uses two functions to resolve {@link ReadableResource} - {@code byClass} and {@code byExtension}. When {@code non-null} values of both
- * resource name and class are passed into {@link Assets#resolve(java.lang.String, java.lang.Class)} or {@link Assets#load(java.lang.String, java.lang.Class)}
- * search by-class takes place first and only if {@code byClass} function returns {@code null} the {@code byExtension} function is invoked.
+ * This implementation uses supplied instance of {@link ReadableResources} to resolve {@link ReadableResource}.
  * <p>
  * Created by Y.Kiselev on 15.05.2016.
  */
@@ -31,46 +29,24 @@ public final class SimpleAssets implements Assets {
 
     private final Resources resources;
 
-    private final Function<Class, ReadableResource> byClass;
+    private final ReadableResources readableResources;
 
-    private final Function<String, ReadableResource> byExtension;
-
-    public SimpleAssets(Resources resources, Function<Class, ReadableResource> byClass, Function<String, ReadableResource> byExtension) {
-        this.resources = resources;
-        this.byClass = byClass;
-        this.byExtension = byExtension;
-    }
-
-    private String extension(String resource) {
-        if (resource == null) {
-            return null;
-        }
-        final int i = resource.lastIndexOf('.');
-        if (i == -1) {
-            return null;
-        }
-        return resource.substring(i + 1);
-    }
-
-    @Override
-    public Optional<ReadableByteChannel> open(String resource) throws ResourceException {
-        return this.resources.open(resource);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
-        final ReadableResource result;
-        if (clazz == null) {
-            result = byExtension.apply(extension(resource));
-        } else {
-            result = byClass.apply(clazz);
-        }
-        return (ReadableResource<T>) result;
+    public SimpleAssets(Resources resources, ReadableResources readableResources) {
+        this.resources = requireNonNull(resources);
+        this.readableResources = requireNonNull(readableResources);
     }
 
     @Override
     public <T> Optional<T> tryLoad(String resource, Class<T> clazz) throws ResourceException {
-        return resolve(resource, clazz).read(resource, this);
+        return resources.open(resource)
+                .map(channel ->
+                        readableResources.resolve(resource, clazz)
+                                .read(channel, resource, this)
+                );
+    }
+
+    @Override
+    public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
+        return readableResources.resolve(resource, clazz);
     }
 }

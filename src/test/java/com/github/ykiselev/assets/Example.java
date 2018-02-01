@@ -22,7 +22,6 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.HashMap;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -41,24 +40,38 @@ public final class Example {
                 )
         );
         // 2
-        Function<Class, ReadableResource> byClass = clazz -> {
-            if (String.class.isAssignableFrom(clazz)) {
-                return (stream, resource, assets) -> readText(stream);
-            } else {
-                throw new IllegalArgumentException("Unsupported resource class:" + clazz);
+        ReadableResources byClass = new ReadableResources() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
+                if (String.class.isAssignableFrom(clazz)) {
+                    return (stream, res, assets) -> (T) readText(stream);
+                } else {
+                    throw new IllegalArgumentException("Unsupported resource class:" + clazz);
+                }
             }
         };
         // 3
-        Function<String, ReadableResource> byExtension = ext -> {
-            if ("text".equals(ext)) {
-                return (stream, resource, assets) -> readText(stream);
-            } else {
-                throw new IllegalArgumentException("Unsupported resource extension:" + ext);
+        ReadableResources byExtension = new ReadableResources() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
+                if (resource.endsWith("text")) {
+                    return (stream, res, assets) -> (T) readText(stream);
+                } else {
+                    throw new IllegalArgumentException("Unsupported extension:" + resource);
+                }
             }
         };
         // Create instance of ManagedAssets which will delegate real work to SimpleAssets
         ManagedAssets managedAssets = new ManagedAssets(
-                new SimpleAssets(resources, byClass, byExtension),
+                new SimpleAssets(
+                        resources,
+                        new CompositeReadableResources(
+                                byClass,
+                                byExtension
+                        )
+                ),
                 new HashMap<>()
         );
         // Now we can load assets

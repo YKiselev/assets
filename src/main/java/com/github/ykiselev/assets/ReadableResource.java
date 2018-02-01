@@ -16,9 +16,7 @@
 
 package com.github.ykiselev.assets;
 
-import java.net.URI;
 import java.nio.channels.ReadableByteChannel;
-import java.util.Optional;
 
 /**
  * Implementation of this interface should be able to read (de-serialize) object instance of supported class from supplied {@link ReadableByteChannel}.
@@ -26,18 +24,6 @@ import java.util.Optional;
  * Created by Y.Kiselev on 15.05.2016.
  */
 public interface ReadableResource<T> {
-
-    /**
-     * Convenient method to read resource by {@link URI}
-     *
-     * @param resource the resource name.
-     * @param assets   the instance of asset manager. At first glance {@link Resources} would suffice but {@link Assets} may be required for cases when we read compound asset consisting of different assets.
-     * @return de-serialized resource or nothing.
-     * @throws ResourceException if something goes wrong during de-serialization of resource.
-     */
-    default Optional<T> read(String resource, Assets assets) throws ResourceException {
-        return assets.open(resource).map(ch -> read(ch, resource, assets));
-    }
 
     /**
      * Reads resource from channel.
