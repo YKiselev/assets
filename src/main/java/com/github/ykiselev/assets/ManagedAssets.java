@@ -47,7 +47,7 @@ public final class ManagedAssets implements Assets, AutoCloseable {
     }
 
     @Override
-    public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
+    public <T> ReadableAsset<T> resolve(String resource, Class<T> clazz) throws ResourceException {
         return assets.resolve(resource, clazz);
     }
 
@@ -57,7 +57,7 @@ public final class ManagedAssets implements Assets, AutoCloseable {
         cache.clear();
     }
 
-    private void close(Object asset) throws IllegalStateException {
+    private void close(Object asset) {
         try {
             if (asset instanceof AutoCloseable) {
                 ((AutoCloseable) asset).close();

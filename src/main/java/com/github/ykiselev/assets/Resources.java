@@ -27,7 +27,7 @@ import java.util.Optional;
 public interface Resources {
 
     /**
-     * Opens new channel for requested resource.
+     * Opens new read-only channel for requested resource.
      * Caller is expected to close channel after use.
      *
      * @param resource the resource name

@@ -19,14 +19,14 @@ package com.github.ykiselev.assets;
 import java.util.Optional;
 
 /**
- * Asset manager. Implementations expected to delegate actual work of loading asset to appropriate instance of class implementing {@link ReadableResource}.
+ * Asset manager. Implementations expected to delegate actual work of loading asset to appropriate instance of class implementing {@link ReadableAsset}.
  * <p>
  * Created by Y.Kiselev on 15.05.2016.
  */
-public interface Assets extends ReadableResources {
+public interface Assets extends ReadableAssets {
 
     /**
-     * Loads asset using one of registered {@link ReadableResource}'s
+     * Loads asset using one of registered {@link ReadableAsset}'s
      *
      * @param resource the resource name
      * @param clazz    the class of resource or {@code null} if not known
@@ -40,7 +40,7 @@ public interface Assets extends ReadableResources {
     }
 
     /**
-     * Loads asset using one of registered {@link ReadableResource}'s
+     * Loads asset using one of registered {@link ReadableAsset}'s
      *
      * @param resource the resource name
      * @param clazz    the class of resource or {@code null} if not known

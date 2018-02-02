@@ -35,12 +35,12 @@ public class SimpleAssetsTest {
 
     private final Resources resources = mock(Resources.class);
 
-    private final ReadableResources readableResources = mock(ReadableResources.class);
+    private final ReadableAssets readableAssets = mock(ReadableAssets.class);
 
     @SuppressWarnings("unchecked")
-    private final ReadableResource<Double> readableResource = mock(ReadableResource.class);
+    private final ReadableAsset<Double> readableAsset = mock(ReadableAsset.class);
 
-    private final Assets assets = new SimpleAssets(resources, readableResources);
+    private final Assets assets = new SimpleAssets(resources, readableAssets);
 
     @Before
     public void setUp() {
@@ -48,15 +48,15 @@ public class SimpleAssetsTest {
                 .thenReturn(
                         Optional.of(mock(ReadableByteChannel.class))
                 );
-        when(readableResource.read(any(ReadableByteChannel.class), any(), any()))
+        when(readableAsset.read(any(ReadableByteChannel.class), any(), any()))
                 .thenReturn(Math.PI);
     }
 
     @Test
     public void shouldLoad() {
-        when(readableResources.resolve(any(String.class), eq(Double.class)))
-                .thenReturn(readableResource);
-        when(readableResource.read(any(ReadableByteChannel.class), eq("x"), eq(assets)))
+        when(readableAssets.resolve(any(String.class), eq(Double.class)))
+                .thenReturn(readableAsset);
+        when(readableAsset.read(any(ReadableByteChannel.class), eq("x"), eq(assets)))
                 .thenReturn(Math.PI);
         assertEquals(Math.PI, assets.load("x", Double.class), 0.00001);
     }

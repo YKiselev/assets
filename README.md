@@ -9,7 +9,7 @@ Simple framework for asset management (asset here is any resource, for example i
 
 # How to use
 
-Asset framework consists of three interfaces:
+Asset framework consists of four interfaces:
 
 ## Resources interface
 Low-level api to resolve resource URI to java.nio.channels.ReadableByteChannel
@@ -19,13 +19,30 @@ interface Resources {
     Optional<ReadableByteChannel> open(String resource) throws ResourceException;
 }
 ```
-## Assets interface
-Top-level interface which extends com.github.ykiselev.assets.Resources and adds methods to access registered com.github.ykiselev.assets.ReadableResource's or assets itself
+## ReadableResource<T> interface
+Api to be implemented by user for each supported asset class
 ```java
-interface Assets extends Resources {
+public interface ReadableResource<T> {
 
     /**
-     * Resolves readable resource from supplied name and class.
+     * Convenient method to read resource
+     */
+    default Optional<T> read(String resource, Assets assets) throws ResourceException {
+        return assets.open(resource).map(ch -> read(ch, resource, assets));
+    }
+
+    /**
+     * Reads resource from channel
+     */
+    T read(ReadableByteChannel channel, String resource, Assets assets) throws ResourceException;
+}
+```
+## ReadableResources interface
+```java
+public interface ReadableResources {
+
+    /**
+     * Resolves instance of {@link ReadableResource} from supplied URI and/or class.
      */
     <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException;
 
@@ -37,11 +54,18 @@ interface Assets extends Resources {
     }
 
     /**
-     * Convenient method to resolve {@link ReadableResource} by asset name.
+     * Convenient method to resolve {@link ReadableResource} by asset class.
      */
     default <T> ReadableResource<T> resolve(String resource) throws ResourceException {
         return resolve(resource, null);
     }
+}
+```
+
+## Assets interface
+Top-level interface which extends com.github.ykiselev.assets.Resources and adds methods to access registered com.github.ykiselev.assets.ReadableResource's or assets itself
+```java
+interface Assets extends ReadableResources {
 
     /**
      * Loads asset using one of registered {@link ReadableResource}'s
@@ -71,30 +95,11 @@ interface Assets extends Resources {
     }
 }
 ```
-## ReadableResource<T> interface
-Api to be implemented by user for each supported asset class
-```java
-public interface ReadableResource<T> {
-
-    /**
-     * Convenient method to read resource
-     */
-    default Optional<T> read(String resource, Assets assets) throws ResourceException {
-        return assets.open(resource).map(ch -> read(ch, resource, assets));
-    }
-
-    /**
-     * Reads resource from channel
-     */
-    T read(ReadableByteChannel channel, String resource, Assets assets) throws ResourceException;
-}
-```
 
 ## Implementations
 ### SimpleAssets class 
 This is a base implementation of Assets interface. Instance of this class will require implementation of com.github.ykiselev.assets.Resources (which will be 
-used to resolve resource name to ReadableByteChannel) and two functions: Function<Class, ReadableResource> - should resolve ReadableResource by specified asset class 
-and Function<String, ReadableResource> - should resolve ReadableResource by asset's path extension.
+used to resolve resource name to ReadableByteChannel) and com.github.ykiselev.assets.ReadableResources which should resolve ReadableResource by specified asset name and/or class.
 
 ### ManagedAssets class 
 This class is intended to be used as decoration for other implementations of Assets. To create instance of this class user will need to provide implementation 
@@ -110,29 +115,43 @@ class Example {
     public static void main(String[] args) {
         // 1
         Resources resources = resource -> Optional.of(
-            Channels.newChannel(
-                    Example.class.getResourceAsStream(resource)
-            )
+                Channels.newChannel(
+                        Example.class.getResourceAsStream(resource)
+                )
         );
         // 2
-        Function<Class, ReadableResource> byClass = clazz -> {
-            if (String.class.isAssignableFrom(clazz)) {
-                return (stream, resource, assets) -> readText(stream);
-            } else {
-                throw new IllegalArgumentException("Unsupported resource class:" + clazz);
+        ReadableResources byClass = new ReadableResources() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
+                if (String.class.isAssignableFrom(clazz)) {
+                    return (stream, res, assets) -> (T) readText(stream);
+                } else {
+                    throw new IllegalArgumentException("Unsupported resource class:" + clazz);
+                }
             }
         };
         // 3
-        Function<String, ReadableResource> byExtension = ext -> {
-            if ("text".equals(ext)) {
-                return (stream, resource, assets) -> readText(stream);
-            } else {
-                throw new IllegalArgumentException("Unsupported resource extension:" + ext);
+        ReadableResources byExtension = new ReadableResources() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
+                if (resource.endsWith("text")) {
+                    return (stream, res, assets) -> (T) readText(stream);
+                } else {
+                    throw new IllegalArgumentException("Unsupported extension:" + resource);
+                }
             }
         };
         // Create instance of ManagedAssets which will delegate real work to SimpleAssets
         ManagedAssets managedAssets = new ManagedAssets(
-                new SimpleAssets(resources, byClass, byExtension),
+                new SimpleAssets(
+                        resources,
+                        new CompositeReadableResources(
+                                byClass,
+                                byExtension
+                        )
+                ),
                 new HashMap<>()
         );
         // Now we can load assets

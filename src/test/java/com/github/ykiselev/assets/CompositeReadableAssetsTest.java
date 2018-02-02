@@ -26,24 +26,24 @@ import static org.mockito.Mockito.when;
 /**
  * @author Yuriy Kiselev (uze@yandex.ru).
  */
-public class CompositeReadableResourcesTest {
+public class CompositeReadableAssetsTest {
 
     @Test
     public void shouldResolve() {
-        final ReadableResource<String> rr = (stream, res, assets) -> null;
-        final ReadableResources delegate1 = mock(ReadableResources.class);
-        final ReadableResources delegate2 = mock(ReadableResources.class);
+        final ReadableAsset<String> rr = (stream, res, assets) -> null;
+        final ReadableAssets delegate1 = mock(ReadableAssets.class);
+        final ReadableAssets delegate2 = mock(ReadableAssets.class);
         when(delegate1.resolve(eq("a"), eq(String.class)))
                 .thenReturn(null);
         when(delegate2.resolve(eq("a"), eq(String.class)))
                 .thenReturn(rr);
-        final ReadableResources readableResources = new CompositeReadableResources(
+        final ReadableAssets readableAssets = new CompositeReadableAssets(
                 delegate1,
                 delegate2
         );
         assertEquals(
                 rr,
-                readableResources.resolve("a", String.class)
+                readableAssets.resolve("a", String.class)
         );
     }
 }

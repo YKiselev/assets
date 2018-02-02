@@ -40,10 +40,10 @@ public final class Example {
                 )
         );
         // 2
-        ReadableResources byClass = new ReadableResources() {
+        ReadableAssets byClass = new ReadableAssets() {
             @Override
             @SuppressWarnings("unchecked")
-            public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
+            public <T> ReadableAsset<T> resolve(String resource, Class<T> clazz) throws ResourceException {
                 if (String.class.isAssignableFrom(clazz)) {
                     return (stream, res, assets) -> (T) readText(stream);
                 } else {
@@ -52,10 +52,10 @@ public final class Example {
             }
         };
         // 3
-        ReadableResources byExtension = new ReadableResources() {
+        ReadableAssets byExtension = new ReadableAssets() {
             @Override
             @SuppressWarnings("unchecked")
-            public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
+            public <T> ReadableAsset<T> resolve(String resource, Class<T> clazz) throws ResourceException {
                 if (resource.endsWith("text")) {
                     return (stream, res, assets) -> (T) readText(stream);
                 } else {
@@ -67,7 +67,7 @@ public final class Example {
         ManagedAssets managedAssets = new ManagedAssets(
                 new SimpleAssets(
                         resources,
-                        new CompositeReadableResources(
+                        new CompositeReadableAssets(
                                 byClass,
                                 byExtension
                         )

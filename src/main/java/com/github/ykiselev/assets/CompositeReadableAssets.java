@@ -19,16 +19,16 @@ package com.github.ykiselev.assets;
 import java.util.Objects;
 
 /**
- * Implementation of {@link ReadableResources} which delegates resolution to configured delegates. Method resolve
- * iterates over delegates until first {@code non-null} {@link ReadableResource} is returned.
+ * Implementation of {@link ReadableAssets} which delegates resolution to configured delegates. Method resolve
+ * iterates over delegates until first {@code non-null} {@link ReadableAsset} is returned.
  *
  * @author Yuriy Kiselev (uze@yandex.ru).
  */
-public final class CompositeReadableResources implements ReadableResources {
+public final class CompositeReadableAssets implements ReadableAssets {
 
-    private final ReadableResources[] delegates;
+    private final ReadableAssets[] delegates;
 
-    public CompositeReadableResources(ReadableResources... delegates) {
+    public CompositeReadableAssets(ReadableAssets... delegates) {
         Objects.requireNonNull(delegates);
         if (delegates.length == 0) {
             throw new IllegalArgumentException("At least one delegate should be supplied!");
@@ -37,9 +37,9 @@ public final class CompositeReadableResources implements ReadableResources {
     }
 
     @Override
-    public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
-        for (ReadableResources delegate : delegates) {
-            final ReadableResource<T> result = delegate.resolve(resource, clazz);
+    public <T> ReadableAsset<T> resolve(String resource, Class<T> clazz) throws ResourceException {
+        for (ReadableAssets delegate : delegates) {
+            final ReadableAsset<T> result = delegate.resolve(resource, clazz);
             if (result != null) {
                 return result;
             }

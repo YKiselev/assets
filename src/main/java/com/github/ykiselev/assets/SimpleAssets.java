@@ -21,7 +21,7 @@ import java.util.Optional;
 import static java.util.Objects.requireNonNull;
 
 /**
- * This implementation uses supplied instance of {@link ReadableResources} to resolve {@link ReadableResource}.
+ * This implementation uses supplied instance of {@link ReadableAssets} to resolve {@link ReadableAsset}.
  * <p>
  * Created by Y.Kiselev on 15.05.2016.
  */
@@ -29,24 +29,24 @@ public final class SimpleAssets implements Assets {
 
     private final Resources resources;
 
-    private final ReadableResources readableResources;
+    private final ReadableAssets readableAssets;
 
-    public SimpleAssets(Resources resources, ReadableResources readableResources) {
+    public SimpleAssets(Resources resources, ReadableAssets readableAssets) {
         this.resources = requireNonNull(resources);
-        this.readableResources = requireNonNull(readableResources);
+        this.readableAssets = requireNonNull(readableAssets);
     }
 
     @Override
     public <T> Optional<T> tryLoad(String resource, Class<T> clazz) throws ResourceException {
         return resources.open(resource)
                 .map(channel ->
-                        readableResources.resolve(resource, clazz)
+                        readableAssets.resolve(resource, clazz)
                                 .read(channel, resource, this)
                 );
     }
 
     @Override
-    public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
-        return readableResources.resolve(resource, clazz);
+    public <T> ReadableAsset<T> resolve(String resource, Class<T> clazz) throws ResourceException {
+        return readableAssets.resolve(resource, clazz);
     }
 }
