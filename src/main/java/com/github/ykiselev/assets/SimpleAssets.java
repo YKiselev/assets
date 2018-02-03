@@ -37,11 +37,11 @@ public final class SimpleAssets implements Assets {
     }
 
     @Override
-    public <T> Optional<T> tryLoad(String resource, Class<T> clazz) throws ResourceException {
+    public <T> Optional<T> tryLoad(String resource, Class<T> clazz, Assets assets) throws ResourceException {
         return resources.open(resource)
                 .map(channel ->
                         readableAssets.resolve(resource, clazz)
-                                .read(channel, resource, this)
+                                .read(channel, resource, assets)
                 );
     }
 

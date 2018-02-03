@@ -26,29 +26,29 @@ import static java.util.Objects.requireNonNull;
  */
 public final class ManagedAssets implements Assets, AutoCloseable {
 
-    private final Assets assets;
+    private final Assets delegate;
 
     private final Map<String, Optional<?>> cache;
 
-    public ManagedAssets(Assets assets, Map<String, Optional<?>> cache) {
-        this.assets = requireNonNull(assets);
+    public ManagedAssets(Assets delegate, Map<String, Optional<?>> cache) {
+        this.delegate = requireNonNull(delegate);
         this.cache = requireNonNull(cache);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> tryLoad(String resource, Class<T> clazz) throws ResourceException {
+    public <T> Optional<T> tryLoad(String resource, Class<T> clazz, Assets assets) throws ResourceException {
         final Optional<?> opt = cache.get(resource);
         if (opt != null) {
             return (Optional<T>) opt;
         }
-        cache.putIfAbsent(resource, assets.tryLoad(resource, clazz));
+        cache.putIfAbsent(resource, delegate.tryLoad(resource, clazz, assets));
         return (Optional<T>) cache.get(resource);
     }
 
     @Override
     public <T> ReadableAsset<T> resolve(String resource, Class<T> clazz) throws ResourceException {
-        return assets.resolve(resource, clazz);
+        return delegate.resolve(resource, clazz);
     }
 
     @Override

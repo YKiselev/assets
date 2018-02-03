@@ -48,7 +48,21 @@ public interface Assets extends ReadableAssets {
      * @return the requested resource or nothing
      * @throws ResourceException if something goes wrong during the resource loading process.
      */
-    <T> Optional<T> tryLoad(String resource, Class<T> clazz) throws ResourceException;
+    default <T> Optional<T> tryLoad(String resource, Class<T> clazz) throws ResourceException {
+        return tryLoad(resource, clazz, this);
+    }
+
+    /**
+     * Loads asset using one of registered {@link ReadableAsset}'s
+     *
+     * @param resource the resource name
+     * @param clazz    the class of resource or {@code null} if not known
+     * @param assets   the asset manager to pass to {@link ReadableAsset#read(java.nio.channels.ReadableByteChannel, java.lang.String, com.github.ykiselev.assets.Assets)} to load sub-assets
+     * @param <T>      the type of resource
+     * @return the requested resource or nothing
+     * @throws ResourceException if something goes wrong during the resource loading process.
+     */
+    <T> Optional<T> tryLoad(String resource, Class<T> clazz, Assets assets) throws ResourceException;
 
     /**
      * Convenient method taking only one string argument as a resource name.

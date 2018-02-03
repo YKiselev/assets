@@ -68,6 +68,11 @@ Top-level interface which extends com.github.ykiselev.assets.Resources and adds 
 interface Assets extends ReadableResources {
 
     /**
+     * Loads asset using one of registered {@link ReadableAsset}'s
+    */
+    <T> Optional<T> tryLoad(String resource, Class<T> clazz, Assets assets) throws ResourceException;
+    
+    /**
      * Loads asset using one of registered {@link ReadableResource}'s
      */
     default <T> T load(String resource, Class<T> clazz) throws ResourceException {
@@ -78,7 +83,9 @@ interface Assets extends ReadableResources {
     /**
      * Tries to load asset using one of registered {@link ReadableResource}'s
      */
-    <T> Optional<T> tryLoad(String resource, Class<T> clazz) throws ResourceException;
+    default <T> Optional<T> tryLoad(String resource, Class<T> clazz) throws ResourceException {
+        return tryLoad(resource, clazz, this);
+    }
     
     /**
      * Convenient method taking only resource name as argument.
