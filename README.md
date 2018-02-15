@@ -5,58 +5,51 @@
 # Assets
 ## Synopsis
 
-Simple framework for asset management (asset here is any resource, for example image or sound).
+Simple framework for asset management (asset here is any application resource, for example image, texture or sound).
 
 # How to use
 
 Asset framework consists of four interfaces:
 
 ## Resources interface
-Low-level api to resolve resource URI to java.nio.channels.ReadableByteChannel
+Low-level api to resolve resource name to java.nio.channels.ReadableByteChannel
 ```java
 interface Resources {
 
     Optional<ReadableByteChannel> open(String resource) throws ResourceException;
 }
 ```
-## ReadableResource<T> interface
+## ReadableAsset<T> interface
 Api to be implemented by user for each supported asset class
 ```java
-public interface ReadableResource<T> {
+public interface ReadableAsset<T> {
 
     /**
-     * Convenient method to read resource
+     * Reads asset from channel
      */
-    default Optional<T> read(String resource, Assets assets) throws ResourceException {
-        return assets.open(resource).map(ch -> read(ch, resource, assets));
-    }
-
-    /**
-     * Reads resource from channel
-     */
-    T read(ReadableByteChannel channel, String resource, Assets assets) throws ResourceException;
+    T read(ReadableByteChannel channel, Assets assets) throws ResourceException;
 }
 ```
-## ReadableResources interface
+## ReadableAssets interface
 ```java
-public interface ReadableResources {
+public interface ReadableAssets {
 
     /**
-     * Resolves instance of {@link ReadableResource} from supplied URI and/or class.
+     * Resolves instance of {@link ReadableAsset} from supplied URI and/or class.
      */
-    <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException;
+    <T> ReadableAsset<T> resolve(String resource, Class<T> clazz) throws ResourceException;
 
     /**
-     * Convenient method to resolve {@link ReadableResource} by asset class.
+     * Convenient method to resolve {@link ReadableAsset} by asset class.
      */
-    default <T> ReadableResource<T> resolve(Class<T> clazz) throws ResourceException {
+    default <T> ReadableAsset<T> resolve(Class<T> clazz) throws ResourceException {
         return resolve(null, clazz);
     }
 
     /**
-     * Convenient method to resolve {@link ReadableResource} by asset class.
+     * Convenient method to resolve {@link ReadableAsset} by asset class.
      */
-    default <T> ReadableResource<T> resolve(String resource) throws ResourceException {
+    default <T> ReadableAsset<T> resolve(String resource) throws ResourceException {
         return resolve(resource, null);
     }
 }
@@ -65,7 +58,7 @@ public interface ReadableResources {
 ## Assets interface
 Top-level interface which extends com.github.ykiselev.assets.Resources and adds methods to access registered com.github.ykiselev.assets.ReadableResource's or assets itself
 ```java
-interface Assets extends ReadableResources {
+interface Assets extends ReadableAssets {
 
     /**
      * Loads asset using one of registered {@link ReadableAsset}'s
@@ -127,24 +120,22 @@ class Example {
                 )
         );
         // 2
-        ReadableResources byClass = new ReadableResources() {
+        ReadableAssets byClass = new ReadableAssets() {
             @Override
-            @SuppressWarnings("unchecked")
-            public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
+            public <T> ReadableAsset<T> resolve(String resource, Class<T> clazz) throws ResourceException {
                 if (String.class.isAssignableFrom(clazz)) {
-                    return (stream, res, assets) -> (T) readText(stream);
+                    return (stream, assets) -> (T) readText(stream);
                 } else {
                     throw new IllegalArgumentException("Unsupported resource class:" + clazz);
                 }
             }
         };
         // 3
-        ReadableResources byExtension = new ReadableResources() {
+        ReadableAssets byExtension = new ReadableAssets() {
             @Override
-            @SuppressWarnings("unchecked")
-            public <T> ReadableResource<T> resolve(String resource, Class<T> clazz) throws ResourceException {
+            public <T> ReadableAsset<T> resolve(String resource, Class<T> clazz) throws ResourceException {
                 if (resource.endsWith("text")) {
-                    return (stream, res, assets) -> (T) readText(stream);
+                    return (stream, assets) -> (T) readText(stream);
                 } else {
                     throw new IllegalArgumentException("Unsupported extension:" + resource);
                 }

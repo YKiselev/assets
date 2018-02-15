@@ -45,7 +45,7 @@ public final class Example {
             @SuppressWarnings("unchecked")
             public <T> ReadableAsset<T> resolve(String resource, Class<T> clazz) throws ResourceException {
                 if (String.class.isAssignableFrom(clazz)) {
-                    return (stream, res, assets) -> (T) readText(stream);
+                    return (stream, assets) -> (T) readText(stream);
                 } else {
                     throw new IllegalArgumentException("Unsupported resource class:" + clazz);
                 }
@@ -57,7 +57,7 @@ public final class Example {
             @SuppressWarnings("unchecked")
             public <T> ReadableAsset<T> resolve(String resource, Class<T> clazz) throws ResourceException {
                 if (resource.endsWith("text")) {
-                    return (stream, res, assets) -> (T) readText(stream);
+                    return (stream, assets) -> (T) readText(stream);
                 } else {
                     throw new IllegalArgumentException("Unsupported extension:" + resource);
                 }

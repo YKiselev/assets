@@ -30,7 +30,7 @@ public class CompositeReadableAssetsTest {
 
     @Test
     public void shouldResolve() {
-        final ReadableAsset<String> rr = (stream, res, assets) -> null;
+        final ReadableAsset<String> rr = (stream, assets) -> null;
         final ReadableAssets delegate1 = mock(ReadableAssets.class);
         final ReadableAssets delegate2 = mock(ReadableAssets.class);
         when(delegate1.resolve(eq("a"), eq(String.class)))

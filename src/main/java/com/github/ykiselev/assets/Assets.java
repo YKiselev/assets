@@ -57,7 +57,7 @@ public interface Assets extends ReadableAssets {
      *
      * @param resource the resource name
      * @param clazz    the class of resource or {@code null} if not known
-     * @param assets   the asset manager to pass to {@link ReadableAsset#read(java.nio.channels.ReadableByteChannel, java.lang.String, com.github.ykiselev.assets.Assets)} to load sub-assets
+     * @param assets   the asset manager to pass to {@link ReadableAsset#read(java.nio.channels.ReadableByteChannel, Assets)} to load sub-assets
      * @param <T>      the type of resource
      * @return the requested resource or nothing
      * @throws ResourceException if something goes wrong during the resource loading process.

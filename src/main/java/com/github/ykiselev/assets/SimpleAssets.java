@@ -41,7 +41,7 @@ public final class SimpleAssets implements Assets {
         return resources.open(resource)
                 .map(channel ->
                         readableAssets.resolve(resource, clazz)
-                                .read(channel, resource, assets)
+                                .read(channel, assets)
                 );
     }
 

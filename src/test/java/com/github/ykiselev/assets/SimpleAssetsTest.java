@@ -48,7 +48,7 @@ public class SimpleAssetsTest {
                 .thenReturn(
                         Optional.of(mock(ReadableByteChannel.class))
                 );
-        when(readableAsset.read(any(ReadableByteChannel.class), any(), any()))
+        when(readableAsset.read(any(ReadableByteChannel.class), any()))
                 .thenReturn(Math.PI);
     }
 
@@ -56,7 +56,7 @@ public class SimpleAssetsTest {
     public void shouldLoad() {
         when(readableAssets.resolve(any(String.class), eq(Double.class)))
                 .thenReturn(readableAsset);
-        when(readableAsset.read(any(ReadableByteChannel.class), eq("x"), eq(assets)))
+        when(readableAsset.read(any(ReadableByteChannel.class), eq(assets)))
                 .thenReturn(Math.PI);
         assertEquals(Math.PI, assets.load("x", Double.class), 0.00001);
     }
